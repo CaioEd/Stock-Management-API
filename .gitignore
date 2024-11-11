@@ -1,0 +1,33 @@
+# Binários compilados
+/main
+/*.exe
+/*.dll
+/*.so
+/*.dylib
+
+# Diretório do workspace do Go
+/pkg/
+/bin/
+
+# Arquivos de cache do Go
+**/go.sum
+**/go.mod
+
+# Dependências baixadas
+/go.sum
+/go.mod
+
+# IDEs e ambientes de desenvolvimento
+.vscode/
+.idea/
+*.swp
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de teste e de log
+*.log
+*.out
+*.test
+coverage.out
