@@ -1,10 +1,13 @@
 package controllers
 
 import (
-	"net/http"
 	"encoding/json"
-	"stock_api/models"
+	"net/http"
 	"stock_api/database"
+	"stock_api/models"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func GetProducts(w http.ResponseWriter, r *http.Request) {
@@ -13,9 +16,10 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "applocation/json")
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(products)
 }
+
 
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
@@ -29,4 +33,65 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(product)
+}
+
+
+func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	// GET ID BY URL
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	// GET PRODUCT ON DB
+	var product models.Product
+	if err := database.DB.First(&product, id).Error; err != nil {
+		http.Error(w, "Product not found", http.StatusNotFound)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// UPDATE PRODUCT
+	if err := database.DB.Save(&product).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// RETURNS PRODUCT UPDATED
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(product)
+
+}
+
+
+func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	// GET ID BY URL
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	// GET PRODUCT ON DB
+	var product models.Product
+	if err := database.DB.First(&product, id).Error; err != nil {
+		http.Error(w, "Product not found", http.StatusNotFound)
+		return
+	}
+
+	if err := database.DB.Delete(&product).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Product deleted"})
 }

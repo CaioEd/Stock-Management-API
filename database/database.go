@@ -12,7 +12,7 @@ var DB *gorm.DB
 
 func Init() {
 	// DB CONNECTION
-	dsn := "root@tcp(127.0.0.1:3007)/stock_db"
+	dsn := "root@tcp(127.0.0.1:3307)/stock_db"
 	var err error
 
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
