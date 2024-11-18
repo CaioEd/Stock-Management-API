@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"stock_api/database"
 	"stock_api/models"
@@ -22,6 +25,10 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 
 
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
+	bodyBytes, _ := io.ReadAll(r.Body)
+	r.Body = io.NopCloser(bytes.NewReader(bodyBytes)) // Reseta o Body para permitir nova leitura
+	fmt.Println("Requisição recebida:", string(bodyBytes))
+
 	var product models.Product
 	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
