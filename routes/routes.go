@@ -12,7 +12,7 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/product/{id}", controllers.GetProductByID).Methods("GET")
 	r.HandleFunc("/products", controllers.CreateProduct).Methods("POST")
 	r.HandleFunc("/products/{id}", controllers.UpdateProduct).Methods("PUT")
-	r.HandleFunc("/product/{id}", controllers.DeleteProduct).Methods("DELETE")
+	r.HandleFunc("/products/{id}", controllers.DeleteProduct).Methods("DELETE")
 
 	r.HandleFunc("/users", controllers.GetUsers).Methods("GET")
 	r.HandleFunc("/user/{id}", controllers.GetUserByID).Methods("GET")
