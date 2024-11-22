@@ -24,5 +24,7 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/register", controllers.CreateRegister).Methods("POST")
 	r.HandleFunc("/register/{id}", controllers.UpdateRegister).Methods("PUT")	
 
+	r.HandleFunc("/registers/date", controllers.GetRegistersByDate).Methods("GET")
+
 	return r
 }
