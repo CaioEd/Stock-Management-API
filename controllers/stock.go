@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+
 // FILTER BY DATE FUNCTION
 func GetRegistersByDate(w http.ResponseWriter, r *http.Request) {
 	fromDate := r.URL.Query().Get("from_date")
@@ -40,4 +41,41 @@ func GetRegistersByDate(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(registers); err != nil {
 		http.Error(w, err.Error(), http	.StatusInternalServerError)
 	}
+}
+
+// GET TOTAL QUANTITY OF PRODUCTS ON THE STOCK
+
+func GetTotalQuantity(w http.ResponseWriter, r *http.Request) {
+	var total int64
+
+	if err := database.DB.Table("registers").Select("SUM(quantity)").Scan(&total).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]int64{"total_quantity": total})
+}
+
+
+// GET THE SUM OF THE TOTAL SPENT ON PRODUCTS IN THE CURRENT MONTH
+
+func GetTotalSpent(w http.ResponseWriter, r *http.Request) {
+	var total float64
+
+	now := time.Now()
+
+	firstDayMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	lastDayMonth := time.Date(now.Year(), now.Month(), 1, 23, 59, 59, 999999999, time.UTC).AddDate(0, 1, -1)
+
+	if err := database.DB.Table("registers").
+		Where("created_at BETWEEN ? AND ?", firstDayMonth.Format("2006-01-02"), lastDayMonth.Format("2006-01-02")).
+		Select("SUM(total_spent)").Scan(&total).Error; err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]float64{"total_spent": total})
 }

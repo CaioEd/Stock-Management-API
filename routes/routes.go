@@ -30,5 +30,9 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/category", controllers.CreateCategory).Methods("POST")
 	r.HandleFunc("/category/{id}", controllers.UpdateCategory).Methods("PUT")	
 
+	r.HandleFunc("/total_quantity_products", controllers.GetTotalQuantity).Methods("GET")
+
+	r.HandleFunc("/total_spent_current_month", controllers.GetTotalSpent).Methods("GET")
+
 	return r
 }

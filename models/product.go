@@ -5,6 +5,4 @@ type Product struct {
 	Name			string 			`json:"name"`
 	Description		string 			`json:"description"`
 	Category		string 			`json:"category"`
-	Quantity		string			`json:"quantity"`
-	Price			string 			`json:"price"`
 }

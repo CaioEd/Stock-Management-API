@@ -5,7 +5,6 @@ import "gorm.io/gorm"
 type Register struct {
 	ID          uint   `json:"id"`
 	Name        string `json:"name"`
-	Category    string `json:"category"`
 	Quantity    float64 `json:"quantity"`
 	Price       float64 `json:"price"`
 	Total_Spent float64 `json:"total_spent"`
