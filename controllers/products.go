@@ -105,30 +105,3 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(product)
 
 }
-
-
-func DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	// GET ID BY URL
-	params := mux.Vars(r)
-	id, err := strconv.Atoi(params["id"])
-	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
-		return
-	}
-
-	// GET PRODUCT ON DB
-	var product models.Product
-	if err := database.DB.First(&product, id).Error; err != nil {
-		http.Error(w, "Product not found", http.StatusNotFound)
-		return
-	}
-
-	if err := database.DB.Delete(&product).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Product deleted"})
-}

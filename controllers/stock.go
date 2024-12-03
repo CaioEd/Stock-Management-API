@@ -6,6 +6,7 @@ import (
 	"stock_api/database"
 	"stock_api/models"
 	"time"
+	"fmt"
 )
 
 // FILTER BY DATE FUNCTION
@@ -59,13 +60,16 @@ func GetTotalQuantity(w http.ResponseWriter, r *http.Request) {
 func GetTotalSpent(w http.ResponseWriter, r *http.Request) {
 	var total float64
 
-	now := time.Now()
+	now := time.Now().UTC()
 
 	firstDayMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
 	lastDayMonth := firstDayMonth.AddDate(0, 1, -1).Add(time.Hour*23 + time.Minute*59 + time.Second*59)
 
+	fmt.Println("First Day of Month:", firstDayMonth)
+	fmt.Println("Last Day of Month:", lastDayMonth)
+
 	if err := database.DB.Table("registers").
-		Where("created_at BETWEEN ? AND ?", firstDayMonth.Format("2006-01-02"), lastDayMonth.Format("2006-01-02")).
+		Where("CONVERT_TZ(date, '+00:00', '-03:00') BETWEEN ? AND ?", firstDayMonth, lastDayMonth).
 		Select("SUM(total_spent)").Scan(&total).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -74,3 +78,4 @@ func GetTotalSpent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]float64{"total_spent": total})
 }
+
