@@ -105,3 +105,29 @@ func UpdateRegister(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(register)
 
 }
+
+func DeleteRegister(w http.ResponseWriter, r *http.Request) {
+	// GET ID BY URL
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	// GET PRODUCT ON DB
+	var register models.Register
+	if err := database.DB.First(&register, id).Error; err != nil {
+		http.Error(w, "Register not found", http.StatusNotFound)
+		return
+	}
+
+	if err := database.DB.Delete(&register).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Register deleted"})
+}

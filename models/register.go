@@ -1,6 +1,6 @@
 package models
 
-<<<<<<< HEAD
+
 import "gorm.io/gorm"
 
 type Register struct {
@@ -15,13 +15,4 @@ type Register struct {
 func (r *Register) BeforeSave(tx *gorm.DB) (err error) {
 	r.Total_Spent = r.Quantity * r.Price
 	return
-=======
-type Register struct {
-	ID				uint			`json:"id"`
-	Name			string 			`json:"name"`
-	Category		string 			`json:"category"`
-	Quantity		string			`json:"quantity"`
-	Price			string 			`json:"price"`
-	Date			string			`json:"register_date"`
->>>>>>> 257318786fdcaf0255bea40fb0a0f81e4b3f94ce
 }

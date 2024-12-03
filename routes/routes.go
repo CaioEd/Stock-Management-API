@@ -23,7 +23,7 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/register/{id}", controllers.GetRegisterByID).Methods("GET")
 	r.HandleFunc("/register", controllers.CreateRegister).Methods("POST")
 	r.HandleFunc("/register/{id}", controllers.UpdateRegister).Methods("PUT")	
-<<<<<<< HEAD
+	r.HandleFunc("/register/{id}", controllers.DeleteRegister).Methods("DELETE")
 	r.HandleFunc("/registers/date", controllers.GetRegistersByDate).Methods("GET")
 
 	r.HandleFunc("/categories", controllers.GetCategories).Methods("GET")
@@ -35,10 +35,6 @@ func NewRouter() *mux.Router {
 
 	r.HandleFunc("/total_spent_current_month", controllers.GetTotalSpent).Methods("GET")
 
-=======
 
-	r.HandleFunc("/registers/date", controllers.GetRegistersByDate).Methods("GET")
-
->>>>>>> 257318786fdcaf0255bea40fb0a0f81e4b3f94ce
 	return r
 }
