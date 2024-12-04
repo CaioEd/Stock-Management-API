@@ -68,7 +68,7 @@ Before getting started, ensure you have the following installed:
       );
      ```
 
-   - This will create a database called `stock_db` and a table named `example_table`.
+   - This will create a database called `stock_db` and the tables.
 
 ## Go Project Setup
 
