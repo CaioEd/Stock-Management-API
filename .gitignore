@@ -31,3 +31,5 @@ Thumbs.db
 *.out
 *.test
 coverage.out
+
+.env

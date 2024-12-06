@@ -34,6 +34,7 @@ func NewRouter() *mux.Router {
 
 	r.HandleFunc("/total_spent_current_month", controllers.GetTotalSpent).Methods("GET")
 
+	r.HandleFunc("/login", controllers.Login).Methods("POST")
 
 	return r
 }

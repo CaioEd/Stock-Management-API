@@ -1,10 +1,7 @@
 package controllers
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"stock_api/database"
 	"stock_api/models"
@@ -12,9 +9,13 @@ import (
 
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
+
 // USERS FUNCTIONS
+// 
+
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	var users []models.User
@@ -54,23 +55,34 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 }
 
 
+// Create a new user with encrypted password
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	bodyBytes, _ := io.ReadAll(r.Body)
-	r.Body = io.NopCloser(bytes.NewReader(bodyBytes)) // Reseta o Body para permitir nova leitura
-	fmt.Println("Request received:", string(bodyBytes))
-
 	var user models.User
+
+	// Decodes the request body
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
+
+	// Password encryption
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Error encrypting password", http.StatusInternalServerError)
+		return
+	}
+	user.Password = string(hashedPassword)
+
+	// Save the user on database
 	if err := database.DB.Create(&user).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{"message": "User created successfully"})
 }
+
 
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
