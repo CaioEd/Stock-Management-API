@@ -7,8 +7,8 @@ This is a Go project that uses a MySQL database with docker.
 
 Before getting started, ensure you have the following installed:
 
-- [Go](https://golang.org/dl/) installed on your machine.
-- [Docker] installed on your machine.
+- Go installed on your machine.
+- Docker installed on your machine.
 
 
 ## Go Project Setup
