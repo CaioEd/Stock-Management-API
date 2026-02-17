@@ -1,0 +1,225 @@
+{
+  "info": {
+    "name": "Mercado Livre - Anúncios de Teste",
+    "description": "Collection para criar anúncios de teste no Mercado Livre com dados aleatórios no Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "d3b8f9f0-2d89-4d8a-a8e9-c28b4e115b44"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('base_url')) {",
+          "  pm.collectionVariables.set('base_url', 'https://api.mercadolibre.com');",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('site_id')) {",
+          "  pm.collectionVariables.set('site_id', 'MLB');",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('currency_id')) {",
+          "  pm.collectionVariables.set('currency_id', 'BRL');",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('condition')) {",
+          "  pm.collectionVariables.set('condition', 'new');",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('listing_type_id')) {",
+          "  pm.collectionVariables.set('listing_type_id', 'gold_special');",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('buying_mode')) {",
+          "  pm.collectionVariables.set('buying_mode', 'buy_it_now');",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('category_id')) {",
+          "  pm.collectionVariables.set('category_id', 'MLB1055');",
+          "}",
+          "",
+          "const now = Date.now();",
+          "const rand = Math.floor(Math.random() * 9000) + 1000;",
+          "",
+          "pm.collectionVariables.set('random_sku', `SKU-${now}-${rand}`);",
+          "pm.collectionVariables.set('random_title', `Produto de Teste ${rand} - Não comprar`);",
+          "pm.collectionVariables.set('random_price', (Math.floor(Math.random() * 500) + 50).toString());",
+          "pm.collectionVariables.set('random_quantity', (Math.floor(Math.random() * 20) + 1).toString());",
+          "pm.collectionVariables.set('random_description', `Anúncio de teste criado via Postman em ${new Date().toISOString()}.`);"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "https://api.mercadolibre.com" },
+    { "key": "site_id", "value": "MLB" },
+    { "key": "currency_id", "value": "BRL" },
+    { "key": "condition", "value": "new" },
+    { "key": "listing_type_id", "value": "gold_special" },
+    { "key": "buying_mode", "value": "buy_it_now" },
+    { "key": "category_id", "value": "MLB1055" },
+    { "key": "app_id", "value": "" },
+    { "key": "client_secret", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "access_token", "value": "" },
+    { "key": "seller_id", "value": "" },
+    { "key": "item_id", "value": "" },
+    { "key": "random_title", "value": "" },
+    { "key": "random_price", "value": "" },
+    { "key": "random_quantity", "value": "" },
+    { "key": "random_sku", "value": "" },
+    { "key": "random_description", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1) Gerar access token",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/oauth/token",
+          "host": ["{{base_url}}"],
+          "path": ["oauth", "token"]
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "grant_type", "value": "refresh_token", "type": "text" },
+            { "key": "client_id", "value": "{{app_id}}", "type": "text" },
+            { "key": "client_secret", "value": "{{client_secret}}", "type": "text" },
+            { "key": "refresh_token", "value": "{{refresh_token}}", "type": "text" }
+          ]
+        },
+        "description": "Use este request para renovar o access_token usando o refresh_token."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "if (json.access_token) {",
+              "  pm.collectionVariables.set('access_token', json.access_token);",
+              "}",
+              "if (json.refresh_token) {",
+              "  pm.collectionVariables.set('refresh_token', json.refresh_token);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2) Validar usuário autenticado",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/users/me",
+          "host": ["{{base_url}}"],
+          "path": ["users", "me"]
+        },
+        "description": "Valida se o token está correto e salva seller_id."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "if (json.id) {",
+              "  pm.collectionVariables.set('seller_id', json.id.toString());",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3) Descobrir categoria sugerida por texto",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/sites/{{site_id}}/domain_discovery/search?limit=5&q=fone bluetooth",
+          "host": ["{{base_url}}"],
+          "path": ["sites", "{{site_id}}", "domain_discovery", "search"],
+          "query": [
+            { "key": "limit", "value": "5" },
+            { "key": "q", "value": "fone bluetooth" }
+          ]
+        },
+        "description": "Opcional: ajuda a encontrar category_id para o tipo de produto de teste."
+      }
+    },
+    {
+      "name": "4) Criar anúncio de teste (dados aleatórios)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/items",
+          "host": ["{{base_url}}"],
+          "path": ["items"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"{{random_title}}\",\n  \"category_id\": \"{{category_id}}\",\n  \"price\": {{random_price}},\n  \"currency_id\": \"{{currency_id}}\",\n  \"available_quantity\": {{random_quantity}},\n  \"buying_mode\": \"{{buying_mode}}\",\n  \"listing_type_id\": \"{{listing_type_id}}\",\n  \"condition\": \"{{condition}}\",\n  \"description\": {\n    \"plain_text\": \"{{random_description}}\"\n  },\n  \"seller_custom_field\": \"{{random_sku}}\"\n}"
+        },
+        "description": "Cria anúncio com campos randômicos gerados no script de pre-request da collection."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status de criação (200 ou 201)', function () {",
+              "  pm.expect([200, 201]).to.include(pm.response.code);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "if (json.id) {",
+              "  pm.collectionVariables.set('item_id', json.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5) Consultar anúncio criado",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/items/{{item_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["items", "{{item_id}}"]
+        }
+      }
+    }
+  ]
+}
